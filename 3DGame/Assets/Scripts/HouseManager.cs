@@ -57,6 +57,11 @@ public class HouseManager : MonoBehaviour
     /// </summary>
     private int count;
 
+    /// <summary>
+    /// 遊戲結束
+    /// </summary>
+    private bool gameOver;
+
     private void Start()
     {
         CreateHouse(); // 呼叫生成房子函式
@@ -85,6 +90,8 @@ public class HouseManager : MonoBehaviour
     /// </summary>
     public void HouseDown()
     {
+        if (gameOver || !tempHouse) return;                      // 如果 遊戲結束 或者 目前沒有房子 跳出
+
         tempHouse.transform.SetParent(null);                     // 暫存房子.變形.設定父物件(無)
         tempHouse.GetComponent<Rigidbody>().isKinematic = false; // 暫存房子.取得元件<剛體>().運動學 = false
         tempHouse.GetComponent<House>().down = true;             // 暫存房子.取得元件<房子>().是否掉落中 = true
@@ -104,6 +111,7 @@ public class HouseManager : MonoBehaviour
 
         count++;                                    // 房子總數遞增
         textHouseCount.text = "房子總數：" + count;  // 蓋房子數量文字介面.文字 = "房子總數：" + 房子總數
+        tempHouse = null;                           // 目前沒有房子
     }
 
     private void Update()
@@ -146,13 +154,14 @@ public class HouseManager : MonoBehaviour
     /// </summary>
     public void GameOver()
     {
-        final.SetActive(true);
+        if (gameOver) return;                                                  // 如果 遊戲結束 跳出
+        gameOver = true;                                                       // 遊戲結束
 
-        textCurrent.text = "本次總數：" + count;
+        final.SetActive(true);                                                 // 結算畫面.啟動設定(顯示)
+        textCurrent.text = "本次總數：" + count;                                // 本次數量文字介面.文字 = "本次數量：" + 房子總數
 
-        if (count > PlayerPrefs.GetInt("最佳數量"))
-            PlayerPrefs.SetInt("最佳數量", count);
-
-        textBest.text = "最佳數量：" + PlayerPrefs.GetInt("最佳數量", count);
+        if (count > PlayerPrefs.GetInt("最佳數量"))                             // 如果 房子總數 > 玩家參考.取得總數("蓋房子最佳數量")
+            PlayerPrefs.SetInt("最佳數量", count);                              //玩家參考.設定整數("蓋房子最佳數量",房子總數)
+        textBest.text = "最佳數量：" + PlayerPrefs.GetInt("最佳數量", count);    // 最佳數量文字介面.文字 = "最佳數量：" + 玩家參考.取得總數("蓋房子最佳數量")
     }
 }
